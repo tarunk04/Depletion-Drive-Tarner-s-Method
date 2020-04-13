@@ -40,6 +40,14 @@ A, B, C, .., N is computed using curve fitting.
 
 ![sample](KoKgRatioVsSaturtion_curve.png) 
 
+# Preformance
+Tabulation of calculated data is saved in `reservoir.csv` and plot generated is also saved in the working directory.
+Example plots and table:
+![table1](Table1.png)
+![plot1](https://github.com/tarunk04/Depletion-Drive-Tarner-s-Method/blob/master/Pressure%20and%20producing%20GOR%20as%20a%20function%20of%20OOIP%20recovered.png?raw=true)
+![plot2](https://github.com/tarunk04/Depletion-Drive-Tarner-s-Method/blob/master/Cumulative%20Gas%20and%20Oil%20Production%20as%20a%20function%20of%20Pressure.jpg)
+
+
 # Example Notebook
 Two examples have been included in the repository for understanding the working of the program. Go to the example folder to check or click the links below.
 
