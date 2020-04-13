@@ -1,4 +1,4 @@
-# Depletion-Drive-Tarner-s-Method
+# Depletion Drive Tarner's Method
 The purpose of this program is to calculate the future performance of a depletion drive reservoir using `Tarner's method`. Tarner's Method uses the iterative approach to calculate future performance. To achieve the high-speed calculation, Numerical Method is used.
 
 # Algorithm Flow Diagram
