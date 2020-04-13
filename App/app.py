@@ -29,10 +29,12 @@ from collections import OrderedDict
 # In[32]:
 
 
-# Create new reservoir
-# raw = create_new_reservoir()
-# load reservoir
-raw = load_reservoir()
+if input("Create new reservoi?(Y/n) type 'n' to load saved reservoir data") == "Y" :
+    # Create new reservoir
+    raw = create_new_reservoir()
+else:
+    # load reservoir
+    raw = load_reservoir()
 
 
 # In[87]:
