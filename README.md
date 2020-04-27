@@ -90,7 +90,7 @@ Example plots and table:
 ![plot1](https://github.com/tarunk04/Depletion-Drive-Tarner-s-Method/blob/master/Pressure%20and%20producing%20GOR%20as%20a%20function%20of%20OOIP%20recovered.png?raw=true)
 ![plot2](https://github.com/tarunk04/Depletion-Drive-Tarner-s-Method/blob/master/Cumulative%20Gas%20and%20Oil%20Production%20as%20a%20function%20of%20Pressure.jpg)
 
->>>>>>> 3e8ba572a316474447725c91cd0148e4ccfff63d
+
 
 # Example Notebook
 Two examples have been included in the repository for understanding the working of the program. Go to the example folder to check or click the links below.
