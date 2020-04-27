@@ -82,7 +82,7 @@ GUI based `App2` is still in development and may be unstable. Preview below:
 ![preview](preview.png)
 
 **Note : some features are not yet included in GUI app.** 
-=======
+
 # Preformance
 Tabulation of calculated data is saved in `reservoir.csv` and plot generated is also saved in the working directory.
 Example plots and table:
