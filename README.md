@@ -74,7 +74,7 @@ A, B, C, .., N is computed using curve fitting.
 
 ![sample](KoKgRatioVsSaturtion_curve.png) 
 
-<<<<<<< HEAD
+
 # GUI (Beta Preview):
 
 GUI based `App2` is still in development and may be unstable. Preview below:
