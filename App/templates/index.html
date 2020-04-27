@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <title>Depletion-Drive|| Tarner's Method </title>
+    <link rel="stylesheet" href="../static/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="../static/icon/flaticon.css">
+    <link rel="stylesheet" href="../static/style.css">
+    <script src="../static/jquery-3.5.0.js"></script>
+</head>
+<body>
+    <!--Options -->
+    <div class="cover">
+        <div class="select" id="new">
+          <span class="select_text">Create New Project</span>
+        </div>
+        <div class="select" id="open">
+          <span class="select_text">Open Project</span>
+        </div>
+        <div class="select_file">
+          <div class="head">
+            Select Project File
+          </div>
+          <div class="content" id="save_files" style="width: 100%;"></div>
+        </div>
+    </div>
+
+    <script>
+      $(document).ready(function(){
+        $("#menu").click(function(){
+          $("#side-menu").fadeToggle(20);
+        });
+
+        $("#open").click(function(){
+          //$(".selector-container").css("display","none");
+          $(".select_file").css("display","flex");
+
+          $(".select_file").animate({opacity : "100"},1200);
+
+          // $(".cover").animate({opacity : "0"},200,function(){
+          //   $(".cover").css("display","none");
+          // });
+          $.ajax({
+             url: '/api/',
+             type: "POST",
+             contentType: "application/json",
+              data: JSON.stringify({
+                "Api_id": "open"
+              }),
+              success: function(result){
+                // console.log(result.length);
+                html = ''
+                for (i in result){
+                  html += '<div id = '+result[i]+' class="s_files" onclick= load(this)>'+result[i]+'</div>';
+                }
+                $("#save_files").html(html);
+              }
+          });
+        });
+
+        $("#new").click(function(){
+          $(".cover").animate({opacity : "0"},200,function(){
+            $(".cover").css("display","none");
+          });
+          $.ajax({
+             url: '/api/',
+             type: "POST",
+             contentType: "application/json",
+              data: JSON.stringify({
+                "Api_id": "create"
+              }),
+              success: function(result){
+                console.log(result);
+              }
+          });
+        });
+      });
+    </script>
+
+<!-- Main APP -->
+
+<!-- Navigation Bar -->
+<nav class="navbar navbar-expand-sm bg-light navbar-light sticky-top" style="box-shadow: 0 0 8px rgba(0,0,0,0.5);">
+  <div class="container-fluid" style="height: 46px;">
+    <div class="  col-md-8 col-12">
+      <ul class="navbar-nav" style="flex-direction: row;">
+        <li class="nav-item">
+          <!-- MENU -->
+          <a class="navbar-brand dark-icon" id="menu">
+            <i class="flaticon-line-menu font-xs"></i>
+          </a>
+        </li>
+        <!-- MENU -->
+
+        <!-- Title -->
+        <li class="nav-item">
+          <a class="navbar-brand" id="brand-title" href="./" style="font-family: cursive;"s>Depletion-Drive Computer Solution Program</a>
+        </li>
+        <!-- End of Tilte -->
+      </ul>
+    </div>
+    <!-- Links -->
+      <div class="  col-md-4 col-7" style="padding: 0px;">
+        <ul class="navbar-nav " id="links" style="float:right; flex-direction: row;" >
+        </ul>
+      </div>
+    <!-- End of Links -->
+  </div>
+</nav>
+<!-- End of Navigation Bar -->
+
+<!-- Main Body -->
+<div class="container-fluid" style="height: calc(100vh - 62px);">
+  <div class="row" style="height:100%">
+    <!-- Side Menu -->
+    <div class="hide" id="side-menu" style="display:none">
+      <div class="container-fluid" style="overflow-x: hidden;">
+        <div class="row">
+          <a href="./" class="no-style"><div class="col-12 menu-list-item"><i class="flaticon-home font-s pad" ></i>Home</div></a>
+        </div>
+        <div class="row" style="cursor:pointer" onclick="open_selector()">
+          <a class="no-style"><div class="col-12 menu-list-item"><i class="flaticon-share-connection-sing font-s pad"></i>Open/New Project</div></a>
+        </div>
+        <div class="row">
+          <div class="col-12 menu-separator"></div>
+        </div>
+        <div class="row">
+          <a href="https://github.com/tarunk04/Depletion-Drive-Tarner-s-Method" class="no-style" target="_blank"><div class="col-12 menu-list-item"><i class="flaticon-group font-s pad" ></i>About the Project</div></a>
+        </div>
+        <!-- <div class="row">
+          <a href="help.php" class="no-style"><div class="col-12 menu-list-item"><i class="flaticon-help-web-button font-s pad" ></i>Help</div></a>
+        </div> -->
+        <div class="row">
+          <a href="mailto:tarun12.tarunkr@gmail.com?Subject=Depletion-Drive%20Computer%20Solution%20Program:%20Feedback" target="_blank" class="no-style"><div class="col-12 menu-list-item"><i class="flaticon-speech-bubble-with-text-lines font-s pad" ></i>Feedback</div></a>
+        </div>
+        <div class="row">
+          <div class="col-12 menu-separator"></div>
+        </div>
+        <div class="row">
+          <div class="col-12 font-xs" style="line-height:50px;min-width:240px;text-align:center;color:rgba(100,100,100,0.3);">&copy; Tarun Kumar </div>
+        </div>
+      </div>
+    </div>
+    <!-- End of Side Menu -->
+    <div class="wide container-fluid" id="container-vid" style="overflow: hidden;">
+      <!-- Heading-->
+      <div class="row">
+        <div class="col-6">
+          <div class="row row_config">
+            <div class="col-12">
+              <h3>Basic Data</h3>
+            </div>
+          </div>
+
+          <div class="row row_config">
+            <div class="col-6">
+              <label for="">Reservoir Name</label>
+            </div>
+            <div class="col-6">
+              <input id="name" data-type="single" type="text" class="input-g" name="name" value="" placeholder="Reservoir Name" onfocusout="update(this)">
+            </div>
+          </div>
+
+          <div class="row row_config">
+            <div class="col-6">
+              <label for="">Oil in Place</label>
+            </div>
+            <div class="col-6">
+              <input id="oip" data-type="single" type="text" class="input-g" name="oip" value="" placeholder="Oil in Place" onfocusout="update(this)">
+            </div>
+          </div>
+          <div class="row row_config">
+            <div class="col-6">
+              <label for="">Initial Reservoir Pressure</label>
+            </div>
+            <div class="col-6">
+              <input id="pi" data-type="single" type="text" class="input-g" name="pi" value="" placeholder="Initial Reservoir Pressure" onfocusout="update(this)">
+            </div>
+          </div>
+
+          <div class="row row_config">
+            <div class="col-6">
+              <label for="">Bubble Point Pressure</label>
+            </div>
+            <div class="col-6">
+              <input id="pb" data-type="single" type="text" class="input-g" name="pi" value="" placeholder="Bubble Point Pressure" onfocusout="update(this)">
+            </div>
+          </div>
+
+          <div class="row row_config">
+            <div class="col-6">
+              <label for="">Conate Wate Saturation</label>
+            </div>
+            <div class="col-6">
+              <input id="Swi" data-type="single" type="text" class="input-g" name="pi" value="" placeholder="(Swi) Example :(0.15)" onfocusout="update(this)">
+            </div>
+          </div>
+          <!-- Heading-->
+          <div class="row row_config">
+            <div class="col-12">
+              <h3>Premeablity Ratio Data</h3>
+            </div>
+          </div>
+
+          <div class="row row_config">
+            <div class="col-6 dir_col">
+              <label class="label">Premeablity Ratio Kg/Ko</label>
+              <textarea id="rpr" data-type="array" style="line-height: 20px;height: auto;" rows="4" class="input-g" name="pi" value="" placeholder="Data Entries in each lines" onfocusout="update(this)"></textarea>
+            </div>
+            <div class="col-6 dir_col">
+              <label class="label">Oil Saturation</label>
+              <textarea id="So" data-type="array" style="line-height: 20px;height: auto;" rows="4" class="input-g" name="pi" value="" placeholder="Data Entries in each lines" onfocusout="update(this)"></textarea>
+            </div>
+          </div>
+          <div class="row row_config">
+            <div class="col-6">
+              <label>Oil Saturation below which Kg/Ko is 0(zero)</label>
+            </div>
+            <div class="col-6">
+              <input id="sth" data-type="single" type="text" class="input-g" placeholder="Example: 0.85" onfocusout="update(this)">
+            </div>
+          </div>
+
+          <!-- Heading-->
+          <div class="row row_config">
+            <div class="col-12">
+              <h3>Data for calculation below Pb</h3>
+            </div>
+          </div>
+
+          <div class="row row_config">
+            <div class="col-12" style="display: flex;flex-direction: row;">
+              <div class="col-2 dir_col">
+                <label class="label">Pressure</label>
+                <textarea id="pressure" data-type="array" style="line-height: 20px;height: auto;" rows="4" class="input-g" placeholder="Data Entries in each lines" onfocusout="update(this)"></textarea>
+              </div>
+              <div class="col-2 dir_col">
+                <label class="label">Oil formation volume (Bo)</label>
+                <textarea id="Bo" data-type="array" style="line-height: 20px;height: auto;" rows="4" class="input-g" placeholder="Data Entries in each lines" onfocusout="update(this)"></textarea>
+              </div>
+              <div class="col-2 dir_col">
+                <label class="label">Gas formation volume factor (Bg)</label>
+                <textarea id="Bg" data-type="array" style="line-height: 20px;height: auto;" rows="4" class="input-g" placeholder="Data Entries in each lines" onfocusout="update(this)"></textarea>
+              </div>
+              <div class="col-2 dir_col">
+                <label class="label">Solution gas oil ratio</label>
+                <textarea id="Rs" data-type="array" style="line-height: 20px;height: auto;" rows="4" class="input-g" placeholder="Data Entries in each lines" onfocusout="update(this)"></textarea>
+              </div>
+              <div class="col-2 dir_col">
+                <label class="label">Viscosity Ratio (Uo/Ug)</label>
+                <textarea id="viscocity_ratio" data-type="array" style="line-height: 20px;height: auto;" rows="4" class="input-g" placeholder="Data Entries in each lines" onfocusout="update(this)"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <div class="row row_config">
+            <div class="col-12">
+              <div class="btn custom_btn" onclick="save()">
+                Save Project
+              </div>
+              <div class="btn custom_btn" onclick="solve()">
+                Solve
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-6 result" style="opacity:0%;">
+          <div class="row row_config">
+            <div class="col-12">
+              <h3>Results</h3>
+            </div>
+          </div>
+          <div class="col-12">
+            <table class="table table-hover table-bordered table-striped">
+              <thead>
+                <tr>
+                  <th>Pressure</th>
+                  <th>Cumulative Oil Production</th>
+                  <th>Cumulative Gas Production</th>
+                  <th>Producing GOR</th>
+                </tr>
+              </thead>
+              <tbody id="show_data"></tbody>
+            </table>
+          </div>
+          <div class="col-12 imgs">
+            <a class="no-style" id="link_im1" target="_blank"><div class="card custom_card" id="img_1" style="height:340px;"><div class="ovarlay">Click to View</div></div></a>
+            <a class="no-style" id="link_im3" target="_blank"><div class="card custom_card" id="img_3"><div class="ovarlay">Click to View</div></div></a>
+            <a class="no-style" id="link_im2" target="_blank"><div class="card custom_card" id="img_2"><div class="ovarlay">Click to View</div></div></a>
+          </div>
+        </div>
+      </div>
+      <!-- frame -->
+    <div class="frame" style="display:none;"></div>
+  </div>
+</div>
+</div>
+<!-- End of Main Body -->
+<script type="text/javascript">
+function open_selector(){
+  $(".cover").css("display","flex");
+  $(".cover").animate({opacity : "100"},1200);
+}
+
+function table_row(d1,d2,d3,d4){
+  html = "<tr>";
+  html += "<td>"+Math.round((d1+Number.EPSILON)*100000)/100000;+"</td>";
+  html += "<td>"+Math.round((d2+Number.EPSILON)*100000)/100000;+"</td>";
+  html += "<td>"+Math.round((d3+Number.EPSILON)*100000)/100000;+"</td>";
+  html += "<td>"+Math.round((d4+Number.EPSILON)*100000)/100000;+"</td>";
+  html += "</tr>";
+
+  temp = $("#show_data").html();
+  $("#show_data").html(temp+html);
+  // console.log(html);
+}
+
+function solve() {
+  $.ajax({
+     url: '/api/',
+     type: "POST",
+     contentType: "application/json",
+      data: JSON.stringify({
+        "Api_id": "solve"
+      }),
+      success: function(result){
+        console.log(result);
+        if (result == 0){
+          console.log("failed");
+          alert("Calculation terminated due to some error!!");
+        }
+        else{
+          console.log("success");
+          alert("Calculation Done");
+          $("#show_data").html("");
+          a =result.pressure
+          for(i =1 ; i < a.length; i++){
+            table_row(result.pressure[i],result.Np[i],result.Gp[i],result.gor[i])
+          }
+
+          //Loging images
+          $("#img_1").css("background-image","none");
+          $("#img_2").css("background-image","none");
+          $("#img_3").css("background-image","none");
+          $("#img_1").css("background-image","url('../static/output/"+result.name.split(".")[0]+"/KoKgRatioVsSaturtion_curve.png')");
+          $("#link_im1").attr("href","../static/output/"+result.name.split(".")[0]+"/KoKgRatioVsSaturtion_curve.png");
+          $("#img_2").css("background-image","url('../static/output/"+result.name.split(".")[0]+"/Cumulative Gas and Oil Production as a function of Pressure.jpg')");
+          $("#link_im2").attr("href","../static/output/"+result.name.split(".")[0]+"/Cumulative Gas and Oil Production as a function of Pressure.jpg");
+          $("#img_3").css("background-image","url('../static/output/"+result.name.split(".")[0]+"/Pressure and producing GOR as a function of OOIP recovered.png')");
+          $("#link_im3").attr("href","../static/output/"+result.name.split(".")[0]+"/Pressure and producing GOR as a function of OOIP recovered.png");
+          $(".result").animate({opacity : "100"},200)
+        }
+
+      }
+  });
+}
+
+function save() {
+  $.ajax({
+     url: '/api/',
+     type: "POST",
+     contentType: "application/json",
+      data: JSON.stringify({
+        "Api_id": "save"
+      }),
+      success: function(result){
+        console.log(result);
+        if (result == 1){
+          console.log("success");
+          alert("Project Successfuly Saved");
+        }
+        else{
+          console.log("failed");
+          alert("Saving failed due to some error!!");
+        }
+        console.log(result)
+
+      }
+  });
+}
+
+function display_array(data,id) {
+  a = data
+  val = ""+Math.round((a[0]+Number.EPSILON)*100000)/100000;
+  for(i =1 ; i < a.length; i++){
+    // console.log(a[i]);
+    val += "\n"+Math.round((a[i]+Number.EPSILON)*100000)/100000;
+  }
+  $(id).val(val) ;
+  $(id).attr("rows",a.length);
+}
+function load(file){
+  // console.log(file.id);
+  $.ajax({
+     url: '/api/',
+     type: "POST",
+     contentType: "application/json",
+      data: JSON.stringify({
+        "Api_id": "load",
+        "file" : file.id
+      }),
+      success: function(result){
+        console.log(result);
+        console.log(result.name)
+        $("#name").val(result.name);
+        $("#oip").val(result.oip);
+        $("#pi").val(result.pi);
+        $("#pb").val(result.pb);
+        $("#Swi").val(result.Swi);
+        $("#sth").val(result.sth);
+        display_array(result.pressure,'#pressure')
+        display_array(result.So,'#So')
+        display_array(result.rpr,'#rpr')
+        display_array(result.Bo,'#Bo')
+        display_array(result.Bg,'#Bg')
+        display_array(result.Rs,'#Rs')
+        display_array(result.viscocity_ratio,'#viscocity_ratio')
+
+        // $("#sth").val(result.sth) ;
+        $(".cover").animate({opacity : "0"},200,function(){
+          $(".cover").css("display","none");
+          $(".select_file").css("display","none");
+        });
+      }
+  });
+}
+function update(input){
+  $.ajax({
+     url: '/api/',
+     type: "POST",
+     contentType: "application/json",
+      data: JSON.stringify({
+        "Api_id": "update",
+        "key" : input.id,
+        "val" : input.value,
+        "type": $(input).attr("data-type")
+      }),
+      success: function(result){
+        console.log(result);
+      }
+  });
+}
+</script>
+
+</body>
+</html>

@@ -4,6 +4,8 @@ from scipy.optimize import curve_fit
 from matplotlib import pyplot as plt
 from matplotlib import ticker  
 import pickle
+from collections import OrderedDict
+import os
 
 from os import path
 
@@ -33,7 +35,7 @@ def valid_input(des, input_type = "single", skip = False, reason = "Input Requri
 
 # Function to calculate Bg
 def cal_Bg(Z , P):
-    return (14.7*1*Z*(460+175))/(Pressure*1*520*5.615)
+    return (14.7*1*Z*(460+175))/(P*1*520*5.615)
 
 # Function to calculate Bt
 def cal_Bt(Bo, Bg, Rsi, Rs):
@@ -78,15 +80,15 @@ def cal_Ggor(Np, Rp, R, CNppp):
     
 # Function to calculate Gmb1 and Ggor1
 def cal_trail(Np, Bo, Boi, Bt, Bti, Bg, Rs, Rss, Rp, vis_ratio, CGppp, CNppp, Swi, K_coeff, sth):
-    Gmb = np.round(cal_gmb(Np , Bt, Bti, Bg, Rss, CGppp), 6)
-    So = np.round(cal_so(Np, Bo, Boi, Swi), 6)
+    Gmb = cal_gmb(Np , Bt, Bti, Bg, Rss, CGppp)
+    So = cal_so(Np, Bo, Boi, Swi)
 #     print(Np," ",Bo," ",Boi," ",So)
     if So < sth:
-        K_ratio = np.round(cal_kg_ko(So*100, *K_coeff),6)
+        K_ratio =cal_kg_ko(So*100, *K_coeff)
     else :
         K_ratio = np.asarray([0]) 
-    R = np.round(cal_R(K_ratio, vis_ratio, Bo, Bg, Rs), 6)
-    Ggor = np.round(cal_Ggor(Np, Rp, R, CNppp), 6)
+    R = cal_R(K_ratio, vis_ratio, Bo, Bg, Rs)
+    Ggor = cal_Ggor(Np, Rp, R, CNppp)
     
     return Gmb, Ggor, Gmb-Ggor
 
@@ -165,7 +167,7 @@ def get_rpr_params(rp,sor,degree = 4):
 def get_rpr(sor,params):
     return np.exp(curve_fit_function(sor, *params))
 
-def plot_rpr_curve(sor,params,compare=False,rp=[],save=False):
+def plot_rpr_curve(sor,params,compare=False,rp=[],save=False,show=True,path=None):
     # Defining Matplotlib Figure
     f = plt.figure(num=None, figsize=(9,12))
     
@@ -217,11 +219,16 @@ def plot_rpr_curve(sor,params,compare=False,rp=[],save=False):
     
     #saving plot 
     if save:
-            plt.savefig("KoKgRatioVsSaturtion_curve.png")
+            plt.savefig(path+"/KoKgRatioVsSaturtion_curve.png")
     # Showing Final Plot
-    plt.show()
+    if show:
+        plt.show()
+def save_data(data,path="save/"):
+    name = data["name"]
+    with open(path+name+".save",'wb') as file:
+        pickle.dump(data,file)
 
-def save_reservoir_data(data, save_as = False):
+def save_reservoir_data(data, save_as = False, path=""):
     if  save_as == False:
         name = data["name"]
         if name == "" or name == None:
@@ -240,69 +247,74 @@ def save_reservoir_data(data, save_as = False):
     with open(name+".save",'wb') as file:
         pickle.dump(data,file)
         
-def load_reservoir():
-    name = input("Enter reservoir name:")
-    with open(name+".save",'rb') as file:
-        data = pickle.load(file)
-    return data
+def load_reservoir(name=None,path='save/'):
+    if name == None:
+        name = input("Enter reservoir name:")
+        with open(name+".save",'rb') as file:
+            data = pickle.load(file)
+        return data
+    else:
+        with open(path+name, 'rb') as file:
+            data = pickle.load(file)
+        return data
 
-def solve_for_Np(data, Swi = 0.15, delta = 0.01, index = 1, Np = 0.01, sth = 1):
-    Np_cal = data["Np"]
-    Gp_cal = data["Gp"]
-    Rp_cal = data["gor"]
-    Bo = data["Bo"]
-    Bg = data["Bg"]
-    Bt = data["Bt"]
-    Rs = data["Rs"]
-    vis_ratio = data["viscocity_ratio"]
-    K_coeff = data["K_coeff"]
+# def solve_for_Np(data, Swi = 0.15, delta = 0.01, index = 1, Np = 0.01, sth = 1):
+#     Np_cal = data["Np"]
+#     Gp_cal = data["Gp"]
+#     Rp_cal = data["gor"]
+#     Bo = data["Bo"]
+#     Bg = data["Bg"]
+#     Bt = data["Bt"]
+#     Rs = data["Rs"]
+#     vis_ratio = data["viscocity_ratio"]
+#     K_coeff = data["K_coeff"]
     
     
-    Bti = Bt[0]
-    Boi = Bo[0]
-    Rss = Rs[0]
+#     Bti = Bt[0]
+#     Boi = Bo[0]
+#     Rss = Rs[0]
     
-    CGppp = np.sum(Gp_cal[:index])
-    CNppp = Np_cal[index-1]
+#     CGppp = np.sum(Gp_cal[:index])
+#     CNppp = Np_cal[index-1]
     
-    Rp = Rp_cal[index-1]
+#     Rp = Rp_cal[index-1]
     
-#     print(CGppp)
+# #     print(CGppp)
     
-    curr_Gmb, curr_Gogr, prev_diff= cal_trail(Np, Bo[index], Boi, Bt[index], Bti, Bg[index], Rs[index], Rss, Rp,
-                                               vis_ratio[index], CGppp, CNppp, Swi, K_coeff, sth)
-#     print(curr_Gmb, curr_Gogr)
-    sign_change = False
-    curr_diff = prev_diff
-    l_Np = Np
-    r_Np = Np
-    while abs(curr_diff) > 0.0001:
-#         print(curr_diff,"  ",Np)
-        if(sign_change == False):
-            if(curr_diff > 0):
-                Np = Np + delta
-            else:
-                Np = Np - delta
-        else:
-            Np = (l_Np + r_Np)*0.5 
-        curr_Gmb, curr_Gogr, curr_diff = cal_trail(Np, Bo[index], Boi, Bt[index], Bti, Bg[index], Rs[index], Rss, Rp,
-                                               vis_ratio[index], CGppp, CNppp, Swi, K_coeff, sth)
-        if(curr_diff * prev_diff < 0 ) :
-            sign_change = True
-        elif sign_change == False:
-            l_Np = Np
-            r_Np = Np
-        if(sign_change == True):
-            if(curr_diff > 0):
-                l_Np = Np
-            elif(curr_diff < 0):
-                r_Np = Np
-        prev_diff = curr_diff
+#     curr_Gmb, curr_Gogr, prev_diff= cal_trail(Np, Bo[index], Boi, Bt[index], Bti, Bg[index], Rs[index], Rss, Rp,
+#                                                vis_ratio[index], CGppp, CNppp, Swi, K_coeff, sth)
+# #     print(curr_Gmb, curr_Gogr)
+#     sign_change = False
+#     curr_diff = prev_diff
+#     l_Np = Np
+#     r_Np = Np
+#     while abs(curr_diff) > 0.0001:
+# #         print(curr_diff,"  ",Np)
+#         if(sign_change == False):
+#             if(curr_diff > 0):
+#                 Np = Np + delta
+#             else:
+#                 Np = Np - delta
+#         else:
+#             Np = (l_Np + r_Np)*0.5 
+#         curr_Gmb, curr_Gogr, curr_diff = cal_trail(Np, Bo[index], Boi, Bt[index], Bti, Bg[index], Rs[index], Rss, Rp,
+#                                                vis_ratio[index], CGppp, CNppp, Swi, K_coeff, sth)
+#         if(curr_diff * prev_diff < 0 ) :
+#             sign_change = True
+#         elif sign_change == False:
+#             l_Np = Np
+#             r_Np = Np
+#         if(sign_change == True):
+#             if(curr_diff > 0):
+#                 l_Np = Np
+#             elif(curr_diff < 0):
+#                 r_Np = Np
+#         prev_diff = curr_diff
         
-    data["Np"][index] = Np
-    data["Gp"][index] = curr_Gmb
-    data["gor"][index] = (curr_Gmb/(Np-CNppp) * 2) - Rp_cal[index-1]
-    return data
+#     data["Np"][index] = Np
+#     data["Gp"][index] = curr_Gmb
+#     data["gor"][index] = (curr_Gmb/(Np-CNppp) * 2) - Rp_cal[index-1]
+#     return data
 
 def create_new_reservoir():    
     name = input("Enter Resorvior Name: ")
@@ -350,4 +362,147 @@ def create_new_reservoir():
         raw['data']['sw'] = Sw
         raw['data']['cw'] = Cw
         raw['data']['cf'] = Cf
+    return raw
+
+
+def solve_for_Np(data, Swi = 0.15, delta = 0.01, index = 1, Np = 0.01, sth = 1,debug=False):
+    Np_cal = data["Np"]
+    Gp_cal = data["Gp"]
+    Rp_cal = data["gor"]
+    Bo = data["Bo"]
+    Bg = data["Bg"]
+    Bt = data["Bt"]
+    Rs = data["Rs"]
+    vis_ratio = data["viscocity_ratio"]
+    K_coeff = data["K_coeff"]
+    
+    
+    Bti = Bt[0]
+    Boi = Bo[0]
+    Rss = Rs[0]
+    
+    CGppp = np.sum(Gp_cal[:index])
+    CNppp = Np_cal[index-1]
+    
+    Rp = Rp_cal[index-1]
+    
+#     print(CGppp)
+    
+    curr_Gmb, curr_Gogr, curr_diff= cal_trail(Np, Bo[index], Boi, Bt[index], Bti, Bg[index], Rs[index], Rss, Rp,
+                                               vis_ratio[index], CGppp, CNppp, Swi, K_coeff, sth)
+#     print(curr_Gmb, curr_Gogr)
+#     sign_change = False
+#     curr_diff = prev_diff
+    l_Np = Np
+    r_Np = 1
+    while abs(curr_diff) > 0.0001:
+#         print(curr_diff,"  ",Np)
+#         if(sign_change == False):
+#             if(curr_diff > 0):
+#                 Np = Np + delta
+#             else:
+#                 Np = Np - delta
+#         else:
+        Np = (l_Np + r_Np)*0.5 
+        curr_Gmb, curr_Gogr, curr_diff = cal_trail(Np, Bo[index], Boi, Bt[index], Bti, Bg[index], Rs[index], Rss, Rp,
+                                               vis_ratio[index], CGppp, CNppp, Swi, K_coeff, sth)
+#         if(curr_diff * prev_diff < 0 ) :
+#             sign_change = True
+#         elif sign_change == False:
+#             l_Np = Np
+# #             r_Np = Np
+#         if(sign_change == True):
+        if debug:
+            print(Np,l_Np,r_Np,curr_diff)
+        if(curr_diff > 0):
+            l_Np = Np
+        elif(curr_diff < 0):
+            r_Np = Np
+        
+#         prev_diff = curr_diff
+        
+    data["Np"][index] = Np
+    data["Gp"][index] = curr_Gmb
+    data["gor"][index] = (curr_Gmb/(Np-CNppp) * 2) - Rp_cal[index-1]
+    return data
+
+def calculate(raw,show=False):
+    path = "static/output/"
+    path = path + raw["name"].split('.')[0]
+    if os.path.exists(path) == False:
+        os.mkdir(path)
+
+    degree = 4
+    coeff = get_rpr_params(raw['data']["rpr"], raw['data']['So'], degree=degree)
+    raw['data']['K_coeff'] = coeff
+    plot_rpr_curve(raw['data']['So'], coeff, compare=True, rp=raw['data']["rpr"],show=False,save=True,path = path)
+
+    # Solving for each pressure
+    saturation_th = raw['data']['sth']
+    raw['data']['Bt'] = cal_Bt(raw['data']['Bo'], raw['data']['Bg'], raw['data']['Rs'][0], raw['data']['Rs'])
+    raw['data']['Gp'] = np.zeros(raw['data']['pressure'].shape[0])
+    raw['data']['Np'] = np.zeros(raw['data']['pressure'].shape[0])
+    raw['data']['gor'] = np.zeros(raw['data']['pressure'].shape[0])
+    raw['data']['gor'][0] = raw['data']['Rs'][0]
+    for i in range(1, raw['data']['pressure'].shape[0]):
+        raw['data'] = solve_for_Np(raw['data'], Swi=raw['data']["Swi"], index=i, sth=saturation_th,
+                                   Np=raw['data']['Np'][i - 1])
+    # Gp_cal , Np_cal, Rp_cal
+
+    d = {'Pressure (psi)': pd.Series(raw['data']['pressure']),
+         'Bg': pd.Series(raw['data']['Bg']),
+         'Rs': pd.Series(raw['data']['Rs']),
+         'Bo': pd.Series(raw['data']['Bo']),
+         'Uo/Ug': pd.Series(raw['data']['viscocity_ratio']),
+         'Cumulative Oil Production (MMSTB)': pd.Series(np.round(raw['data']['Np'] * raw['data']["oip"] / 1e+6, 3)),
+         'Cumulative Gas Production (MMscf)': pd.Series(
+             np.round(raw['data']['Gp'] * raw['data']["oip"] / 1e+6, 3)).cumsum(),
+         'Producing GOR (scf/STB)': pd.Series(raw['data']['gor']),
+
+         }
+    df = pd.DataFrame(OrderedDict(d))
+    df.to_csv(path+"/reservoir.csv", index=False)
+
+    # Plots
+    f = plt.figure(figsize=(10, 8))
+    ax1 = f.add_subplot(111)
+
+    ax1.plot(raw["data"]["Np"] * 100, raw["data"]["pressure"], label="Pressure", color="darkorange")
+    ax1.tick_params(size=4, labelsize=13)
+    ax1.set_ylabel("Pressure (psi)", fontsize=16)
+    ax1.set_xlabel("OOIP Recovered (%)", fontsize=16)
+
+    ax2 = ax1.twinx()
+    ax2.plot(raw["data"]["Np"] * 100, raw["data"]["gor"], label="Producing GOR", color="darkviolet")
+    ax2.tick_params(size=4, labelsize=13)
+    ax2.set_ylabel("GOR (scf/STB)", fontsize=16)
+
+    plt.title("Pressure and producing GOR as a function of \nOOIP recovered.", fontsize=20)
+    f.legend(loc="upper left", bbox_to_anchor=(0.15, 0.80))
+    plt.savefig(path+"/Pressure and producing GOR as a function of OOIP recovered.")
+    if show:
+        plt.show()
+
+    # Plots
+    f = plt.figure(figsize=(10, 8))
+    ax1 = f.add_subplot(111)
+
+    ax1.plot(raw["data"]["pressure"], raw["data"]["Np"] * 10, label="Cumulative Oil Production", color="darkorange")
+    ax1.tick_params(size=4, labelsize=13)
+    ax1.set_ylabel("Cumulative Oil Production (MMSTB)", fontsize=16)
+    ax1.set_xlabel("Pressure (psi)", fontsize=16)
+    ax1.invert_xaxis()
+
+    ax2 = ax1.twinx()
+    ax2.plot(raw["data"]["pressure"], df["Cumulative Gas Production (MMscf)"], label="Cumulative Gas Production",
+             color="darkviolet")
+    ax2.tick_params(size=4, labelsize=13)
+    ax2.set_ylabel("Cumulative Gas Production (MMscf)", fontsize=16)
+
+    plt.title("Cumulative Gas and Oil Production as a function of \n Pressure.", fontsize=20)
+    f.legend(loc="upper left", bbox_to_anchor=(0.15, 0.80))
+    plt.savefig(path+"/Cumulative Gas and Oil Production as a function of Pressure.jpg")
+    if show:
+        plt.show()
+
     return raw
