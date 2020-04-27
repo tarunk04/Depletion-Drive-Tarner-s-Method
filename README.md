@@ -1,4 +1,4 @@
-# Depletion-Drive-Tarner-s-Method
+# Depletion Drive Tarner's Method
 The purpose of this program is to calculate the future performance of a depletion drive reservoir using `Tarner's method`. Tarner's Method uses the iterative approach to calculate future performance. To achieve the high-speed calculation, Numerical Method is used.
 
 # About Application 
@@ -74,6 +74,7 @@ A, B, C, .., N is computed using curve fitting.
 
 ![sample](KoKgRatioVsSaturtion_curve.png) 
 
+<<<<<<< HEAD
 # GUI (Beta Preview):
 
 GUI based `App2` is still in development and may be unstable. Preview below:
@@ -81,6 +82,15 @@ GUI based `App2` is still in development and may be unstable. Preview below:
 ![preview](preview.png)
 
 **Note : some features are not yet included in GUI app.** 
+=======
+# Preformance
+Tabulation of calculated data is saved in `reservoir.csv` and plot generated is also saved in the working directory.
+Example plots and table:
+![table1](Table1.png)
+![plot1](https://github.com/tarunk04/Depletion-Drive-Tarner-s-Method/blob/master/Pressure%20and%20producing%20GOR%20as%20a%20function%20of%20OOIP%20recovered.png?raw=true)
+![plot2](https://github.com/tarunk04/Depletion-Drive-Tarner-s-Method/blob/master/Cumulative%20Gas%20and%20Oil%20Production%20as%20a%20function%20of%20Pressure.jpg)
+
+>>>>>>> 3e8ba572a316474447725c91cd0148e4ccfff63d
 
 # Example Notebook
 Two examples have been included in the repository for understanding the working of the program. Go to the example folder to check or click the links below.
